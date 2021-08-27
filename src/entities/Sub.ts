@@ -10,7 +10,6 @@ import {
 import Entity from "./Entity";
 import Post from "./Post";
 import User from "./User";
-import { makeId, slugify } from '../util/helpers'
 
 @TOEntity("subs")
 export default class Sub extends Entity {
