@@ -4,23 +4,32 @@ import { FormEvent, useState } from "react";
 import Axios from "axios";
 import InputGroup from "../components/InputGroup";
 import { useRouter } from "next/dist/client/router";
+import { useAuthDispatch, useAuthState } from "../context/auth";
 
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<any>("");
 
-  const router = useRouter()
+  const dispatch = useAuthDispatch();
+  const { authenticated } = useAuthState()
+
+  const router = useRouter();
+
+  if(authenticated) router.push('/')
 
   const submitForm = async (event: FormEvent) => {
     event.preventDefault();
 
     try {
-      await Axios.post("/auth/login", {
+      const res = await Axios.post("/auth/login", {
         password,
         username,
-      })
-      router.push('/')
+      });
+
+      dispatch("LOGIN",res.data );
+
+      router.push("/");
     } catch (err) {
       setErrors(err.response.data);
     }
@@ -41,9 +50,8 @@ export default function Login() {
           <p className="mb-10 text-xs">
             By continuing, you agree to our User Agreement and Privacy Policy
           </p>
-          
+
           <form onSubmit={submitForm}>
-            
             <InputGroup
               className="mb-2"
               value={username}
@@ -65,7 +73,7 @@ export default function Login() {
             </button>
           </form>
           <small>
-            New to  Readit?
+            New to Readit?
             <Link href="/register">
               <a className="ml-1 text-blue-500 uppercase">Sign up</a>
             </Link>
