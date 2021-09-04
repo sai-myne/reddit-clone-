@@ -8,6 +8,7 @@ import Image from "next/image";
 import { useAuthState } from "../../context/auth";
 import classNames from "classnames";
 import Axios from "axios";
+import Sidebar from "../../components/Sidebar";
 
 export default function SubPage() {
   // Local state
@@ -19,7 +20,11 @@ export default function SubPage() {
   const fileInputRef = createRef<HTMLInputElement>();
   const subName = router.query.sub;
 
-  const { data: sub, error, revalidate } = useSWR<Sub>(subName ? `/subs/${subName}` : null);
+  const {
+    data: sub,
+    error,
+    revalidate,
+  } = useSWR<Sub>(subName ? `/subs/${subName}` : null);
 
   useEffect(() => {
     if (!sub) return;
@@ -27,28 +32,28 @@ export default function SubPage() {
   }, [sub]);
 
   const openFileInput = (type: string) => {
-    if(!ownSub) return
-    fileInputRef.current.name = type
-    fileInputRef.current.click()
-  }
+    if (!ownSub) return;
+    fileInputRef.current.name = type;
+    fileInputRef.current.click();
+  };
 
   const uploadImage = async (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files[0]
+    const file = event.target.files[0];
 
-    const formData = new FormData()
-    formData.append('file', file)
-    formData.append('type', fileInputRef.current.name)
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("type", fileInputRef.current.name);
 
     try {
       await Axios.post<Sub>(`/subs/${sub.name}/image`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data'},
-      })
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
-      revalidate()
+      revalidate();
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 
   if (error) router.push("/");
 
@@ -70,7 +75,12 @@ export default function SubPage() {
 
       {sub && (
         <Fragment>
-          <input type="file" hidden={true} ref={fileInputRef} onChange={uploadImage} />
+          <input
+            type="file"
+            hidden={true}
+            ref={fileInputRef}
+            onChange={uploadImage}
+          />
           {/* Sub info and images */}
           <div>
             {/* Banner Image */}
@@ -78,7 +88,7 @@ export default function SubPage() {
               className={classNames("bg-blue-500", {
                 "cursor-pointer": ownSub,
               })}
-              onClick={() => openFileInput('banner')}
+              onClick={() => openFileInput("banner")}
             >
               {sub.bannerUrl ? (
                 <div
@@ -104,7 +114,7 @@ export default function SubPage() {
                     className={classNames("rounded-full", {
                       "cursor-pointer": ownSub,
                     })}
-                    onClick={() => openFileInput('image')}
+                    onClick={() => openFileInput("image")}
                     width={70}
                     height={70}
                   />
@@ -123,6 +133,7 @@ export default function SubPage() {
           {/* Posts & Sidebar */}
           <div className="container flex pt-5">
             <div className="w-160">{postsMarkup}</div>
+            <Sidebar sub={sub} />
           </div>
         </Fragment>
       )}
