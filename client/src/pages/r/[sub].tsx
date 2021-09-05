@@ -23,7 +23,7 @@ export default function SubPage() {
   const {
     data: sub,
     error,
-    revalidate,
+    mutate,
   } = useSWR<Sub>(subName ? `/subs/${subName}` : null);
 
   useEffect(() => {
@@ -49,7 +49,7 @@ export default function SubPage() {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      revalidate();
+      mutate();
     } catch (error) {
       console.log(error);
     }
