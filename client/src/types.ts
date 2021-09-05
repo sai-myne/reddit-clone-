@@ -40,10 +40,11 @@ export interface Sub {
 
 export interface Comment {
   identifier: string;
-  body?: string;
+  body: string;
   username: string;
   createdAt: string;
   updatedAt: string;
+  post?: Post
   // Virtuals
   userVote: number;
   voteScore: number;
