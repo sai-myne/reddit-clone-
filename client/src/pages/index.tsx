@@ -17,9 +17,12 @@ export default function Home() {
   const { authenticated } = useAuthState()
   // console.log(topSubs)
 
+  const description = "Reddit is a network of communities based on people's interests. Find communities you're interested in, and become part of an online community!"
+  const title = "reddit: the front page of the internet"
 
   const { data, error, mutate, size: page, setSize: setPage, isValidating} = useSWRInfinite<Post[]>(index => `/posts?page=${index}`)
 
+  const isInitialLoading = !data && !error
   const posts: Post[] = data ? [].concat(...data) : [];
   useEffect(() => {
     if(!posts || posts.length === 0) return
@@ -45,12 +48,17 @@ export default function Home() {
   return (
     <Fragment>
       <Head>
-        <title>reddit: the front page of the internet</title>
+        <title>{title}</title>
+        <meta name="description" content={description}></meta>
+        <meta property="og:description" content={description}></meta>
+        <meta property="og:title" content={title}></meta>
+        <meta property="twitter:description" content={description}></meta>
+        <meta property="twitter:title" content={title}></meta>
       </Head>
       <div className="container pt-4 flex">
         {/* Posts feed */}
         <div className="w-full md:w-160 px-4 md:p-0">
-          {isValidating && <p className="text-lg text-center">Loading...</p>}
+          {isInitialLoading && <p className="text-lg text-center">Loading...</p>}
           {posts?.map((post) => ( 
             <PostCard post={post} key={post.identifier} mutate={mutate}/>
           ))}

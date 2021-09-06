@@ -4,17 +4,16 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import { Post } from "../types";
 import Axios from "axios";
 import classNames from "classnames";
-import ActionButton from './ActionButton'
+import ActionButton from "./ActionButton";
 import { useAuthState } from "../context/auth";
 import { useRouter } from "next/router";
 
 interface PostCardProps {
   post: Post;
-  mutate?: Function
+  mutate?: Function;
 }
 
 dayjs.extend(relativeTime);
-
 
 export default function PostCard({
   post: {
@@ -29,14 +28,16 @@ export default function PostCard({
     commentCount,
     url,
     username,
+    sub,
   },
-  mutate
+  mutate,
 }: PostCardProps) {
-  const { authenticated } = useAuthState()
-  const router = useRouter()
+  const { authenticated } = useAuthState();
+  const router = useRouter();
+  const isInSubPage = router.pathname === "/r/[sub]"; // /r/[sub]
   const vote = async (value: number) => {
-    if(!authenticated) router.push('/login')
-    if(value === userVote) value = 0
+    if (!authenticated) router.push("/login");
+    if (value === userVote) value = 0;
     try {
       const res = await Axios.post("/misc/vote", {
         identifier,
@@ -44,7 +45,7 @@ export default function PostCard({
         value,
       });
 
-      if(mutate) mutate()
+      if (mutate) mutate();
 
       console.log(res.data);
     } catch (err) {
@@ -52,7 +53,11 @@ export default function PostCard({
     }
   };
   return (
-    <div key={identifier} className="flex mb-4 bg-white rounded" id={identifier}>
+    <div
+      key={identifier}
+      className="flex mb-4 bg-white rounded"
+      id={identifier}
+    >
       {/* Vote section */}
       <div className="w-10 py-3 text-center bg-gray-200 rounded-l">
         {/* Upvote */}
@@ -82,22 +87,29 @@ export default function PostCard({
       {/* Post data section */}
       <div className="w-full p-2">
         <div className="flex items-center">
-          <Link href={`/r/${subName}`}>
-            <img
-              src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y"
-              className="w-6 h-6 mr-1 rounded-full cursor-pointer"
-            />
-          </Link>
-          <Link href={`/r/${subName}`}>
-            <a
-              href=""
-              className="text-xs font-bold hover:underline cursor-pointer"
-            >
-              /r/{subName}
-            </a>
-          </Link>
-          <p className="text-xs text-gray-600">
-            <span className="mx-1">•</span> Posted by
+          {!isInSubPage && (
+            <>
+              <Link href={`/r/${subName}`}>
+                <img
+                  src={sub?.imageUrl}
+                  className="w-6 h-6 mr-1 rounded-full cursor-pointer"
+                />
+              </Link>
+              <Link href={`/r/${subName}`}>
+                <a
+                  href=""
+                  className="text-xs font-bold hover:underline cursor-pointer"
+                >
+                  /r/{subName}
+                </a>
+              </Link>
+              <span className="mx-1 text-xs text-gray-500">•</span>
+            </>
+            
+          )}
+
+          <p className="text-xs text-gray-500">
+             Posted by
             <Link href={`/u/${username}`}>
               <a className="mx-1 hover:underline">/u/{username}</a>
             </Link>
