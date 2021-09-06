@@ -5,8 +5,12 @@ import { Post } from "../types";
 import Axios from "axios";
 import classNames from "classnames";
 import ActionButton from './ActionButton'
+import { useAuthState } from "../context/auth";
+import { useRouter } from "next/router";
+
 interface PostCardProps {
   post: Post;
+  mutate?: Function
 }
 
 dayjs.extend(relativeTime);
@@ -26,8 +30,13 @@ export default function PostCard({
     url,
     username,
   },
+  mutate
 }: PostCardProps) {
+  const { authenticated } = useAuthState()
+  const router = useRouter()
   const vote = async (value: number) => {
+    if(!authenticated) router.push('/login')
+    if(value === userVote) value = 0
     try {
       const res = await Axios.post("/misc/vote", {
         identifier,
@@ -35,13 +44,15 @@ export default function PostCard({
         value,
       });
 
+      if(mutate) mutate()
+
       console.log(res.data);
     } catch (err) {
       console.log(err);
     }
   };
   return (
-    <div key={identifier} className="flex mb-4 bg-white rounded">
+    <div key={identifier} className="flex mb-4 bg-white rounded" id={identifier}>
       {/* Vote section */}
       <div className="w-10 py-3 text-center bg-gray-200 rounded-l">
         {/* Upvote */}
