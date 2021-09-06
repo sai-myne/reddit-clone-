@@ -5,6 +5,7 @@ import Sidebar from "../../../components/Sidebar";
 import Head from "next/head";
 import { Post, Sub } from "../../../types";
 import axios from "axios";
+import { GetServerSideProps } from "next";
 
 export default function submit() {
   const [title, setTitle] = useState("");
@@ -78,4 +79,17 @@ export default function submit() {
       {sub && <Sidebar sub={sub} />}
     </div>
   );
+}
+
+export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+  try {
+    const cookie = req.headers.cookie
+    if(!cookie) throw new Error('Missing auth token cookie')
+
+    await axios.get('/auth/me', { headers: { cookie }})
+
+    return {props: {}} 
+  } catch (err) {
+    res.writeHead(307, { Location: '/login' }).end()
+  }
 }
